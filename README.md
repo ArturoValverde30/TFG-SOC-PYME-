@@ -64,42 +64,6 @@ Ataque (T=0s)
               └─> [Si nivel 12+] Aisla VM automáticamente via Azure API (T+25s)
 ```
 
----
-
-## Estructura del repositorio
-
-```
-tfg-soc-pyme/
-├── docs/
-│   ├── memoria/          # Capítulos de la memoria por semana
-│   ├── presentacion/     # Slides finales defensa
-│   └── diagramas/        # Arquitectura draw.io + PNG
-├── infrastructure/
-│   ├── azure/            # Scripts ARM, NSG, auto-shutdown, Service Principal
-│   ├── digitalocean/     # Scripts Droplet Kali y Windows
-│   └── docker-compose/   # TheHive, MISP, Shuffle, Grafana, OpenVAS
-├── wazuh/
-│   ├── rules/            # Reglas custom .xml por T-code MITRE
-│   ├── ossec.conf        # Configuración completa comentada
-│   └── decoders/         # Decoders para Suricata y OpenCanary
-├── shuffle/
-│   ├── workflows/        # JSON importables (flujo 14 pasos)
-│   └── apps/             # Conectores VirusTotal, AbuseIPDB, Azure CLI
-├── playbooks/
-│   ├── PR-01-ransomware.md
-│   ├── PR-02-phishing-credential.md
-│   └── PR-03-bruteforce.md
-├── validation/
-│   ├── results-soc-v1.csv
-│   ├── results-soc-v2.csv
-│   └── attack-navigator/  # JSON mapas ATT&CK v1 y v2
-├── velociraptor/
-│   ├── vql-queries/       # Queries de hunting reutilizables
-│   └── artifacts/         # Artefactos custom para endpoints
-└── demo/                  # Video backup 5 min + screenshots con fecha
-```
-
----
 
 ## Resultados de validación
 
