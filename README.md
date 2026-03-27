@@ -23,9 +23,6 @@ El sistema detecta, correlaciona y responde a incidentes de seguridad de forma a
 | CTI | MISP | Threat intelligence, feeds IoC en tiempo real |
 | SOAR | Shuffle | Automatización del flujo de respuesta |
 | Case Mgmt | TheHive 5 | Gestión del ciclo de vida del incidente |
-| Hunting | Velociraptor 0.7+ | Threat hunting proactivo con VQL |
-| Vuln Mgmt | OpenVAS/Greenbone | Escaneo automático de vulnerabilidades |
-| Monitorización | Grafana OSS 10.x | Dashboards + alertas para dirección |
 
 ---
 
