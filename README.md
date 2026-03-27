@@ -3,9 +3,6 @@
 **Grado en Ingeniería de Tecnologías de Telecomunicación**  
 Escuela Politécnica de Cuenca — UCLM · 2025–2026
 
-![Estado](https://img.shields.io/badge/estado-en%20desarrollo-yellow)
-![Coste](https://img.shields.io/badge/coste-100%25%20open%20source-green)
-![Cloud](https://img.shields.io/badge/cloud-Azure%20%2B%20DigitalOcean-blue)
 
 ---
 
