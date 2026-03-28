@@ -1,0 +1,4 @@
+sudo apt install suricata -y
+sudo suricata-update
+sudo systemctl enable suricata
+sudo systemctl start suricata
