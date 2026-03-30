@@ -1,4 +1,4 @@
-# TFG-SOC-PYME-
+# TFG-SOC-PYME
 # TFG — SOC Automatizado para PYMEs
 **Grado en Ingeniería de Tecnologías de Telecomunicación**  
 Escuela Politécnica de Cuenca — UCLM · 2025–2026
