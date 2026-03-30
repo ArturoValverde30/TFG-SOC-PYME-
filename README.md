@@ -52,6 +52,7 @@ DigitalOcean ($200 disponibles)
 ## Tutor
 
 José Antonio Ballesteros Garrido — profesor de la escuela politecnica de Cuenca (UCLM)
+
 Marcos David Fernández Berlanga — profesor de la escuela politecnica de Cuenca (UCLM)
 
 ---
