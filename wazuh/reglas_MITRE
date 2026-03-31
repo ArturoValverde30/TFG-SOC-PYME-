@@ -1,0 +1,48 @@
+<!-- Reglas custom MITRE ATT&CK - TFG SOC PYME -->
+
+<!-- T1110 - Brute Force -->
+<rule id="100001" level="10">
+  <if_matched_sid>5503</if_matched_sid>
+  <description>MITRE T1110 - Brute Force: Multiple authentication failures</description>
+  <mitre>
+    <id>T1110</id>
+  </mitre>
+</rule>
+
+<!-- T1021 - Remote Services SSH -->
+<rule id="100002" level="10">
+  <if_matched_sid>5760</if_matched_sid>
+  <description>MITRE T1021.004 - SSH: Remote login attempt detected</description>
+  <mitre>
+    <id>T1021.004</id>
+  </mitre>
+</rule>
+
+<!-- T1078 - Valid Accounts sudo -->
+<rule id="100003" level="8">
+  <if_matched_sid>5407</if_matched_sid>
+  <description>MITRE T1078 - Valid Accounts: Successful sudo execution</description>
+  <mitre>
+    <id>T1078</id>
+  </mitre>
+</rule>
+
+<!-- T1003 - Credential Access /etc/shadow -->
+<rule id="100004" level="12">
+  <if_sid>5715</if_sid>
+  <match>/etc/shadow</match>
+  <description>MITRE T1003 - Credential Dumping: Access to /etc/shadow detected</description>
+  <mitre>
+    <id>T1003</id>
+  </mitre>
+</rule>
+
+<!-- T1059 - Command and Scripting Interpreter -->
+<rule id="100005" level="8">
+  <if_sid>5400</if_sid>
+  <match>bash|python|perl|sh</match>
+  <description>MITRE T1059 - Command Interpreter: Script execution detected</description>
+  <mitre>
+    <id>T1059</id>
+  </mitre>
+</rule>
