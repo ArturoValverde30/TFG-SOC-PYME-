@@ -1,4 +1,4 @@
-<!-- Reglas custom MITRE ATT&CK - TFG SOC PYME -->
+<!-- Reglas MITRE ATT&CK -->
 
 <!-- T1110 - Brute Force -->
 <rule id="100001" level="10">
