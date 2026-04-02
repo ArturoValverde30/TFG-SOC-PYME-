@@ -1,0 +1,4 @@
+sudo apt install -y ruby ruby-dev
+sudo gem install chronic parser
+git clone https://github.com/redcanaryco/invoke-atomicredteam.git ~/atomic-red-team
+git clone https://github.com/redcanaryco/atomic-red-team.git ~/atomics
