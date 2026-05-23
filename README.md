@@ -2,14 +2,13 @@
 
 > Implementación de un Security Operations Center (SOC) funcional y automatizado sobre infraestructura Azure, integrando herramientas open source de nivel enterprise.
 
-[![Wazuh](https://img.shields.io/badge/SIEM-Wazuh_v4.14.5-blue)](https://wazuh.com)
-[![TheHive](https://img.shields.io/badge/Case_Management-TheHive_5-orange)](https://thehive-project.org)
-[![MISP](https://img.shields.io/badge/Threat_Intel-MISP-red)](https://www.misp-project.org)
-[![Shuffle](https://img.shields.io/badge/SOAR-Shuffle-green)](https://shuffler.io)
-[![Velociraptor](https://img.shields.io/badge/DFIR-Velociraptor-purple)](https://docs.velociraptor.app)
-[![Suricata](https://img.shields.io/badge/IDS-Suricata-yellow)](https://suricata.io)
-[![MITRE ATT&CK](https://img.shields.io/badge/Framework-MITRE_ATT%26CK-black)](https://attack.mitre.org)
-
+[![Wazuh]
+[![TheHive]
+[![MISP]
+[![Shuffle]
+[![Velociraptor]
+[![Suricata]
+[![MITRE ATT&CK]
 ---
 
 ## Descripción
