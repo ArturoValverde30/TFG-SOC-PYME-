@@ -30,28 +30,7 @@ Este proyecto implementa un SOC completo orientado a PYMEs, con capacidades de:
 ## Arquitectura
 
 ```
-                        ┌─────────────────────────────────────────┐
-                        │           AZURE CLOUD                    │
-                        │                                          │
-  ┌──────────┐          │  ┌──────────┐      ┌──────────────────┐  │
-  │  VM5     │──────────┼─▶│  VM1     │      │     VM2          │  │
-  │  Victim  │  Wazuh   │  │  Wazuh   │─────▶│  SOC Stack       │  │
-  │  Ubuntu  │  Agent   │  │  Manager │      │  ┌────────────┐  │  │
-  │  Norway  │          │  │  France  │      │  │  TheHive   │  │  │
-  │  East    │          │  │  Central │      │  │  MISP      │  │  │
-  │          │          │  │          │      │  │  Shuffle   │  │  │
-  │ Suricata │          │  │          │      │  │  Velociraptor│ │  │
-  │ Auditd   │          │  └──────────┘      │  └────────────┘  │  │
-  │ ART      │          │                    └──────────────────┘  │
-  └──────────┘          │                                          │
-                        │  ┌──────────┐                            │
-                        │  │  VM4     │                            │
-                        │  │  Windows │                            │
-                        │  │  Server  │                            │
-                        │  │  2022    │                            │
-                        │  │  Sysmon  │                            │
-                        │  └──────────┘                            │
-                        └─────────────────────────────────────────┘
+                    
 
 Flujo IPs (alertas externas):
 Wazuh → Shuffle → [MISP + VT + AbuseIPDB] → Scoring Engine → TheHive → Velociraptor
@@ -71,7 +50,7 @@ Wazuh → Shuffle → TheHive ALERT → TheHive CASE → Velociraptor → Observ
 | Threat Intel | MISP | Latest | CTI local + feeds públicos |
 | Threat Intel | VirusTotal | API v3 | Enriquecimiento IPs y hashes |
 | Threat Intel | AbuseIPDB | API v2 | Reputación IPs |
-| SOAR | Shuffle | Latest | Automatización workflows |
+| SOAR | Shuffle | v2.1.3 | Automatización workflows |
 | Case Management | TheHive 5 | 5.x | Gestión incidentes y observables |
 | DFIR | Velociraptor | 0.76.3 | Forensics automático post-caso |
 | Notificaciones | Gmail | SMTP | Alertas al analista |
