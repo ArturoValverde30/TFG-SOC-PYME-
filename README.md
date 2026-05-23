@@ -1,4 +1,4 @@
-# SOC Automatizado en Cloud — TFG Ciberseguridad
+# SOC Automatizado en Cloud — TFG 
 
 > Implementación de un Security Operations Center (SOC) funcional y automatizado sobre infraestructura Azure, integrando herramientas open source de nivel enterprise.
 
