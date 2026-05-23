@@ -131,7 +131,7 @@ Pruebas realizadas con **Atomic Red Team + Sysmon (SwiftOnSecurity)** sobre Wind
 | Alertas reales procesadas (6 semanas) | 24.679 |
 | Países atacantes identificados | 15+ |
 | Tácticas MITRE cubiertas | 8 |
-| Coste infraestructura estimado | ~200€/mes Azure |
+| Coste infraestructura estimado | ~150€/mes Azure |
 | **MTTR sector (Verizon DBIR 2024)** | **194 días** |
 
 ---
