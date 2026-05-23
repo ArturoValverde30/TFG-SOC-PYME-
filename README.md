@@ -161,12 +161,6 @@ soc-tfg/
 ├── README.md                    ← Este archivo
 ├── rules/
 │   └── local_rules.xml          ← 31 reglas Wazuh custom (MITRE ATT&CK)
-├── docs/
-│   └── seguimientos/            ← 18 sesiones de trabajo documentadas
-│       ├── Seguimiento_01.md    ← Pipeline inicial Wazuh→TheHive
-│       ├── Seguimiento_02.md    ← MISP + VirusTotal integración
-│       ├── ...
-│       └── Seguimiento_19.md    ← Validación Windows completa + Threat Hunting
 └── architecture/
     └── diagrams.md              ← Decisiones de diseño y justificaciones
 ```
@@ -217,6 +211,7 @@ soc-tfg/
 
 ## Autor
 
+Arturo Giusseppe Valverde Avendaño
 TFG — Grado en Ingeniería de telecomunicaciones de la univeridad castilla-lamancha
 Año académico 2025-2026
 
