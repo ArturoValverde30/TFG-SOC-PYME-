@@ -91,6 +91,7 @@ Pipeline completo validado: Wazuh → Shuffle → TheHive → Velociraptor.
 | T1565 | FIM masivo correlación | R100204 | 13 | 0:00:25 | 0:00:15 | ✅ | ✅ | ✅ | 7 | ✅ |
 | T1486 | Ransomware simulado | R100006 | 12 | 0:00:00 | 0:00:19 | ✅ | ✅ | ✅ | 7 | ✅ |
 | T1078 | Valid accounts post-BF | R40112 | 12 | 0:00:32 | 0:01:15 | ✅ | ✅ | ✅ | 7 | ✅ |
+| T1059.004 | Reverse shell | R100030 | 14 | — | — | — | — | — | — | ❌ gap |
 
 
 > \* T1046: decisión técnica documentada — port scan aislado no genera caso TheHive (política anti-alert-fatigue)
