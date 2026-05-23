@@ -218,7 +218,7 @@ soc-tfg/
 
 ## Autor
 
-TFG — Grado en Ingeniería Informática / Ciberseguridad  
+TFG — Grado en Ingeniería de telecomunicaciones de la univeridad castilla-lamancha
 Año académico 2025-2026
 
 ---
