@@ -46,7 +46,7 @@ Wazuh → Shuffle → TheHive ALERT → TheHive CASE → Velociraptor → Observ
 |---|---|---|---|
 | SIEM/EDR | Wazuh | v4.14.5 | Detección, correlación, FIM, SCA |
 | IDS | Suricata | 6.0.4 | Detección tráfico red (ET/open 50k reglas) |
-| Threat Intel | MISP | Latest | CTI local + feeds públicos |
+| Threat Intel | MISP |v2.5.37 | CTI local + feeds públicos |
 | Threat Intel | VirusTotal | API v3 | Enriquecimiento IPs y hashes |
 | Threat Intel | AbuseIPDB | API v2 | Reputación IPs |
 | SOAR | Shuffle | v2.1.3 | Automatización workflows |
