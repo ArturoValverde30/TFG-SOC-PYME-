@@ -2,12 +2,12 @@
 
 > Implementación de un Security Operations Center (SOC) funcional y automatizado sobre infraestructura Azure, integrando herramientas open source de nivel enterprise.
 
-Wazuh|
-TheHive|
-MISP|
-Shuffle|
-Velociraptor|
-Suricata|
+Wazuh |
+TheHive |
+MISP |
+Shuffle |
+Velociraptor |
+Suricata |
 MITRE ATT&CK
 ---
 
