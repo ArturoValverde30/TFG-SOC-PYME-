@@ -1,3 +1,32 @@
+velociraptor solo funciona para Linux
+3.11 Endpoint Windows: Sysmon y reglas personalizadas( poner evidencia)
+en la validación saber porque las algunas alertas tiene mejor detección que otras
+
+-- ver si puedo crear un sistema que descarte y ponga en falso positivo automatizado, que si la alerta salta 3 veces con el mismo agente se notifique al arquitecto.
+-- compararlos con un N1 y sus funciones
+-- hacer que este sea inteligente que si el caso a sido reportado anteriormente este te lo indique en the hive
+-- lo del enriquecinto es super valioso.
+-- crear una alerta que indique que no se realizo el aislamiento correctamente, además que seria conveniente crear un healtcheck que vea periódicamente su estado.
+--- para análisis del SLA (service level agreement) con lo que he calculado ~77 días, ~110.880 minutos) sin interrupción
+-- buscar firmas online para ataques C2 para que suricata detecte y pueda completar la detección del ataque, buscar la amanera de encontrar un foro que actualice estas firmas cada cierto tiempo
+--- en la presentación mencionar la razón de la reglas donde destaquen el mapeo de las técnicas y tácticas MITRE ATTACK, correlación temporal especifica para ataques nuevos, integración con fuentes que wazuh no soporta como Audit que integre yo mismo via localfile y que el ruleset no tiene por defecto
+--- noticias para poder iniciar la presentación
+https://www.channelpartner.es/ticpymes/asi-de-mal-le-fue-a-una-empresa-sevillana-que-descuido-su-ciberseguridad-en-verano/?utm_source=chatgpt.com
+https://www.escudodigital.com/ciberseguridad/la-compania-de-transportes-sertrans-victima-del-grupo-de-ransomware-the-gentlemen.html?utm_source=chatgpt.com
+https://www.escudodigital.com/ciberseguridad/grupo-caliche-ciberataque-ransomware.html?utm_source=chatgpt.com
+https://forbes.es/economia/480579/el-grupo-amper-sufre-un-ciberataque-en-el-que-le-roban-650-gigas-de-datos-de-proyectos-y-de-sus-empleados/
+https://ciberseguridad.castillalamancha.es/noticias/filtracion-de-datos-personales-de-clientes-de-la-empresa-cecotec
+https://ciberseguridad.castillalamancha.es/noticias/millones-de-clientes-afectados-por-la-filtracion-de-datos-de-endesa
+https://www.foodretail.es/retailers/ciberataque-a-ahorramas-el-grupo-de-ransomware-qilin-pone-en-jaque-la-seguridad-de-la-cadena.html
+https://www.rtve.es/noticias/20240919/repsol-sufre-ciberataque-base-datos-clientes-electricidad-gas-espana/16255555.shtml
+
+
+
+
+
+
+
+
 <group name="mitre_custom,">
 
   <!-- ========================================================= -->
