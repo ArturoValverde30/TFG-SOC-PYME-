@@ -7,11 +7,6 @@ credential dumping), sin intervención humana.
 ## Arquitectura de dos capas
 
 El sistema implementa dos mecanismos de contención complementarios,
-activados desde puntos distintos del pipeline:
-
-               ## Arquitectura de dos capas
-
-El sistema implementa dos mecanismos de contención complementarios,
 activados desde puntos distintos del pipeline, ante la misma detección:
 
 **Trigger común**: Wazuh detecta una regla crítica (T1486 ransomware,
