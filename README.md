@@ -25,8 +25,6 @@ Este proyecto implementa un SOC completo orientado a PYMEs, con capacidades de:
 ## Arquitectura
 
 ```
-                    
-
 Flujo IPs (alertas externas):
 Wazuh → Shuffle → [MISP + VT + AbuseIPDB] → Scoring Engine → TheHive → Velociraptor
 
