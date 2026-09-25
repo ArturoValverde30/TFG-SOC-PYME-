@@ -27,7 +27,7 @@ directamente en el agente               isolation_webhook.py (VM1:9876)
 Mata la sesión TCP ya                   → NSG deny-all inbound
 establecida en 1-2s                     (previene reentrada, pero
                                          NO corta sesiones ya abiertas)
-
+`````
 **Por qué dos capas y no una sola**: un aislamiento de red (NSG) no
 interrumpe una sesión TCP que ya está establecida — el atacante sigue
 teniendo su shell activa aunque no pueda abrir conexiones nuevas. La
