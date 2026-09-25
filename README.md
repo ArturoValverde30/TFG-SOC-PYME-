@@ -2,7 +2,7 @@
 
 > Implementación de un Security Operations Center (SOC) funcional y automatizado sobre infraestructura Azure, integrando herramientas open source de nivel enterprise.
 
-Wazuh | TheHive | MISP | Shuffle | Velociraptor | Suricata | MITRE ATT&CK
+Wazuh | TheHive | MISP | Shuffle | Velociraptor | Suricata | MITRE ATT&CK | Dockers
 
 ---
 
@@ -33,7 +33,29 @@ Wazuh → Shuffle → [MISP + VT + AbuseIPDB] → Scoring Engine → TheHive →
 Flujo Interno (eventos sistema):
 Wazuh → Shuffle → TheHive ALERT → TheHive CASE → Velociraptor → Observable
 ```
+### Containerización
 
+El núcleo operativo del SOC (TheHive, MISP, Shuffle, OpenSearch) se despliega
+íntegramente sobre **Docker** en VM2, orquestado mediante Docker Compose:
+
+- Aísla cada servicio en su propia red Docker bridge, evitando conflictos
+  de dependencias entre TheHive (Cassandra), MISP (MariaDB/Redis) y Shuffle
+  (OpenSearch/Orborus workers)
+- Permite recrear el stack completo desde cero en caso de fallo o corrupción
+  de estado (situación real documentada tras 2 meses de inactividad por
+  agotamiento de créditos Azure, donde el contenedor de TheHive quedó en
+  estado `Created` sin arrancar y los alias de OpenSearch de Shuffle
+  quedaron duplicados tras el reinicio)
+- Los workers efímeros de Shuffle (Docker Swarm) requirieron resolución de
+  conectividad interna: comunicación vía red privada Azure (`10.0.0.5`) en
+  lugar de la IP pública, y llamadas a TheHive resueltas por el gateway
+  Docker bridge (`172.17.0.1`) en lugar de DNS público
+
+**Wazuh Manager y el servidor de Velociraptor (VM1) corren nativos** como
+servicios `systemd`, fuera de Docker — separación deliberada para aislar
+el componente crítico de detección (SIEM) de la capa de orquestación SOAR,
+y porque Wazuh no recomienda oficialmente el despliegue containerizado del
+manager en producción por la complejidad de persistencia de reglas y agentes.
 ---
 
 
@@ -57,6 +79,7 @@ Infraestructura distribuida en tres entornos de red independientes:
 | Case Management | TheHive | 5.7 | Gestión incidentes y observables |
 | DFIR | Velociraptor | 0.76.3 | Forensics automático post-caso + threat hunting proactivo |
 | Sensor endpoint | Sysmon | 15.20 | Telemetría Windows (config SwiftOnSecurity) |
+| Contenedores | Docker + Docker Compose | 29.5.1 | Orquestación TheHive/MISP/Shuffle en VM2 |
 
 > **Nota de diseño**: se evaluó Gmail como canal de notificación al analista y se descartó por tratarse de un canal inseguro para alertas SOC. En un entorno real se recomienda Slack/Teams interno o un canal cifrado equivalente.
 
@@ -216,6 +239,12 @@ resolviendo el gap de detección ante IPs "day-zero" sin reputación previa
 **Anti-alert-fatigue en port scan**: reconocimiento aislado genera alerta informativa sin caso TheHive; solo escala si se combina con brute force o login exitoso posterior.
 
 **CTI cerrado con watchlist adaptativa**: la retroalimentación del analista y el registro de IPs sin reputación confirmada convergen en una base de conocimiento local que mejora la precisión del scoring ante ataques futuros.
+
+**Docker solo en el stack SOAR/CTI, no en el SIEM**: TheHive, MISP y Shuffle
+se containerizan para aislar dependencias y facilitar recuperación ante
+fallo; Wazuh Manager permanece nativo por ser el componente de detección
+crítico, evitando una capa adicional de virtualización entre el agente y
+el motor de correlación.
 ---
 
 ## Autor
@@ -227,4 +256,4 @@ Curso académico 2025-2026
 
 ---
 
-> **Nota**: Este repositorio documenta el proceso de implementación de un SOC académico funcional. IPs, credenciales, tokens y configuraciones específicas de la infraestructura desplegada han sido eliminados del repositorio.
+> **Nota**: Este repositorio documenta el proceso de implementación de un SOC académico funcional. IPs, credenciales, tokens y configuraciones específicas de la infraestructura desplegada han sido eliminados del repositorio. Adicionalmente cabe recalcar que este proyecto ya no se encuentra operativo en producción.
