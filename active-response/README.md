@@ -96,7 +96,7 @@ sudo systemctl status isolation-webhook.service
 
 ### 4. Instalar `kill-attacker.sh` en el endpoint víctima
 
-⚠️ **Punto crítico** (ver más abajo, sección "Advertencia"): copiar el
+**Punto crítico** (ver más abajo, sección "Advertencia"): copiar el
 script en la ruta de **ejecución real** del agente, no en `shared/`.
 
 ```bash
