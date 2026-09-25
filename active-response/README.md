@@ -9,24 +9,28 @@ credential dumping), sin intervención humana.
 El sistema implementa dos mecanismos de contención complementarios,
 activados desde puntos distintos del pipeline:
 
-                ┌─────────────────────────────────────┐
-                │  Wazuh detecta regla crítica          │
-                │  (T1486 ransomware, T1071 C2,         │
-                │   T1003.001 LSASS, honeypot/canary)   │
-                └───────────────┬───────────────────────┘
-                                │
-            ┌───────────────────┴───────────────────┐
-            │                                        │
-            ▼                                        ▼
-CAPA HOST (Active Response nativo)      CAPA RED (vía Shuffle → NSG)
-─────────────────────────────           ─────────────────────────────
-Wazuh ejecuta kill-attacker.sh          Shuffle → HTTP POST →
-directamente en el agente               isolation_webhook.py (VM1:9876)
-(sin pasar por SOAR)                    → isolate_vm.sh
-                                         → Azure Management API
-Mata la sesión TCP ya                   → NSG deny-all inbound
-establecida en 1-2s                     (previene reentrada, pero
-                                         NO corta sesiones ya abiertas)
+               ## Arquitectura de dos capas
+
+El sistema implementa dos mecanismos de contención complementarios,
+activados desde puntos distintos del pipeline, ante la misma detección:
+
+**Trigger común**: Wazuh detecta una regla crítica (T1486 ransomware,
+T1071 C2, T1003.001 LSASS dump, honeypot/canary).
+
+| | Capa Host (Active Response nativo) | Capa Red (vía Shuffle → NSG) |
+|---|---|---|
+| **Ruta de ejecución** | Wazuh ejecuta `kill-attacker.sh` directamente en el agente, sin pasar por el SOAR | Shuffle → HTTP POST → `isolation_webhook.py` (VM1:9876) → `isolate_vm.sh` → Azure Management API |
+| **Acción** | Mata la sesión TCP ya establecida (`pkill` + `passwd -l`) | Aplica regla NSG `deny-all inbound` |
+| **Tiempo** | 1-2 segundos | < 30 segundos |
+| **Cubre** | Sesiones ya abiertas (el NSG no las corta) | Previene reentrada tras la expulsión |
+
+**Por qué dos capas y no una sola**: un aislamiento de red (NSG) no
+interrumpe una sesión TCP que ya está establecida — el atacante sigue
+teniendo su shell activa aunque no pueda abrir conexiones nuevas. La
+capa de host (`kill-attacker.sh`) resuelve exactamente ese hueco,
+expulsando la sesión en el mismo segundo de la detección. La capa de
+red complementa evitando que el atacante vuelva a entrar tras ser
+expulsado.
 `````
 **Por qué dos capas y no una sola**: un aislamiento de red (NSG) no
 interrumpe una sesión TCP que ya está establecida — el atacante sigue
