@@ -26,14 +26,6 @@ capa de host (`kill-attacker.sh`) resuelve exactamente ese hueco,
 expulsando la sesión en el mismo segundo de la detección. La capa de
 red complementa evitando que el atacante vuelva a entrar tras ser
 expulsado.
-`````
-**Por qué dos capas y no una sola**: un aislamiento de red (NSG) no
-interrumpe una sesión TCP que ya está establecida — el atacante sigue
-teniendo su shell activa aunque no pueda abrir conexiones nuevas. La
-capa de host (`kill-attacker.sh`) resuelve exactamente ese hueco,
-expulsando la sesión en el mismo segundo de la detección. La capa de
-red complementa evitando que el atacante vuelva a entrar tras ser
-expulsado.
 
 ## Orden de ejecución del pipeline completo
 
