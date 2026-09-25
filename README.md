@@ -1,14 +1,9 @@
-# SOC Automatizado en Cloud — TFG 
+# SOC Automatizado en Cloud — TFG
 
 > Implementación de un Security Operations Center (SOC) funcional y automatizado sobre infraestructura Azure, integrando herramientas open source de nivel enterprise.
 
-Wazuh |
-TheHive |
-MISP |
-Shuffle |
-Velociraptor |
-Suricata |
-MITRE ATT&CK
+Wazuh | TheHive | MISP | Shuffle | Velociraptor | Suricata | MITRE ATT&CK
+
 ---
 
 ## Descripción
@@ -17,12 +12,13 @@ Este proyecto implementa un SOC completo orientado a PYMEs, con capacidades de:
 
 - **Detección** automática de amenazas mediante Wazuh + Suricata
 - **Enriquecimiento** multi-fuente (MISP, VirusTotal, AbuseIPDB)
-- **Scoring dinámico** ponderado por fuente, criticidad de activo y horario
+- **Scoring dinámico** ponderado por fuente, criticidad de activo, horario, geolocalización y correlación temporal
 - **Automatización** de respuesta (SOAR) con Shuffle
 - **Gestión de casos** en TheHive con observables forenses
-- **DFIR automatizado** con Velociraptor post-incident
-- **CTI cerrado** con retroalimentación automática a MISP
-- **Validación empírica** con Atomic Red Team sobre técnicas MITRE ATT&CK
+- **DFIR automatizado** con Velociraptor post-incidente (preserve-evidence-before-containment)
+- **Respuesta activa**: aislamiento automático de endpoints comprometidos vía Azure NSG ante técnicas críticas (ransomware, C2)
+- **CTI cerrado** con retroalimentación automática a MISP (3 capas)
+- **Validación empírica** con Atomic Red Team sobre 18 técnicas MITRE ATT&CK (Linux + Windows)
 
 ---
 
@@ -40,25 +36,35 @@ Wazuh → Shuffle → TheHive ALERT → TheHive CASE → Velociraptor → Observ
 
 ---
 
+
+Infraestructura distribuida en tres entornos de red independientes:
+- **Azure France Central**: VM1 (Wazuh Manager + Velociraptor Server + webhook de aislamiento), VM2 (stack Docker: TheHive, MISP, Shuffle)
+- **Azure Norway East**: VM5 (endpoint víctima Linux, sin VNet peering con France Central)
+- **Local (VirtualBox)**: VM4 (endpoint Windows Server 2022, conectividad NAT hacia IP pública de VM1)
+
+---
+
 ## Stack Tecnológico
 
 | Componente | Herramienta | Versión | Función |
 |---|---|---|---|
-| SIEM/EDR | Wazuh | v4.14.5 | Detección, correlación, FIM, SCA |
-| IDS | Suricata | 6.0.4 | Detección tráfico red (ET/open 50k reglas) |
-| Threat Intel | MISP |v2.5.37 | CTI local + feeds públicos |
+| SIEM/EDR | Wazuh | v4.14.5 | Detección, correlación, FIM, SCA, Vulnerability Detection |
+| IDS | Suricata | 8.0.5 | Detección tráfico red (ET/open, 50.049 firmas) |
+| Threat Intel | MISP | 2.5.39 | CTI local + feeds públicos, 3 capas de retroalimentación |
 | Threat Intel | VirusTotal | API v3 | Enriquecimiento IPs y hashes |
 | Threat Intel | AbuseIPDB | API v2 | Reputación IPs |
-| SOAR | Shuffle | v2.1.3 | Automatización workflows |
-| Case Management | TheHive 5 | 5.x | Gestión incidentes y observables |
-| DFIR | Velociraptor | 0.76.3 | Forensics automático post-caso |
-| Notificaciones | Gmail | SMTP | Alertas al analista |
+| SOAR | Shuffle | 2.2.0 | Automatización workflows |
+| Case Management | TheHive | 5.7 | Gestión incidentes y observables |
+| DFIR | Velociraptor | 0.76.3 | Forensics automático post-caso + threat hunting proactivo |
+| Sensor endpoint | Sysmon | 15.20 | Telemetría Windows (config SwiftOnSecurity) |
+
+> **Nota de diseño**: se evaluó Gmail como canal de notificación al analista y se descartó por tratarse de un canal inseguro para alertas SOC. En un entorno real se recomienda Slack/Teams interno o un canal cifrado equivalente.
 
 ---
 
 ## Scoring Engine
 
-Sistema de puntuación ponderada para priorizar alertas:
+Sistema de puntuación aditiva ponderada (patrón NCISS/CISA) para priorizar alertas del Flujo IPs:
 
 | Fuente | Condición | Puntos |
 |---|---|---|
@@ -67,53 +73,57 @@ Sistema de puntuación ponderada para priorizar alertas:
 | VirusTotal | malicious > 5 | +40 (acumulable) |
 | AbuseIPDB | confidence > 50% | +15 |
 | AbuseIPDB | confidence > 75% | +30 (acumulable) |
+| GeoIP | País de origen de alto riesgo | +10 |
 | Wazuh | rule.level > 12 | +10 |
-| Asset | Activo crítico (vm1, vm2) | +15 |
-| Horario | Fuera UTC 07:00-22:00 | +10 |
-| GeoIP | País alto riesgo | +10 |
+| Correlación | Regla de correlación temporal disparada | +20 |
+| Asset | Activo crítico (vm1-wazuh, vm2-soc) | +15 |
+| Horario | Fuera de ventana laboral UTC 07:00–22:00 | +10 |
 
-**Umbral**: Score ≥ 40 → TheHive ALERT + CASE automático
+**Clasificación** (tope normalizado a 100 puntos sobre un máximo teórico de 165):
+- Score < 40 → **Medium**: no genera caso, se añade a watchlist MISP adaptativa
+- 40 ≤ Score < 70 → **High**: ALERT + CASE automático en TheHive
+- Score ≥ 70 → **Critical**: ALERT + CASE + activa aislamiento automático si la regla es crítica
 
 ---
 
 ## Validación MITRE ATT&CK — Linux (vm5-victim)
 
-Pruebas realizadas con **Atomic Red Team** sobre Ubuntu 22.04 (Norway East).
-Pipeline completo validado: Wazuh → Shuffle → TheHive → Velociraptor.
+Pruebas con **Atomic Red Team** sobre Ubuntu 22.04 (Norway East). Pipeline validado: Wazuh → Shuffle → TheHive → Velociraptor.
 
-| Técnica | Descripción | Rule ID | Level | MTTR Wazuh | MTTR Shuffle | ALERT | CASE | Velociraptor | Acciones Auto. | Resultado |
-|---|---|---|---|---|---|---|---|---|---|---|
-| T1110.001 | Brute Force sudo | R100001 | 10 | 0:00:03 | 0:00:17 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1003.008 | /etc/shadow dump | R100300 | 12 | 0:00:06 | 0:00:14 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1059.004 | Sudoers abuse | R100022 | 12 | 0:00:00 | 0:00:16 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1070.003 | FIM archivo crítico | R100100 | 12 | 0:00:00 | 0:00:13 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1036 | Masquerading | R100005 | 8 | 0:00:02 | 0:00:12 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1565 | FIM masivo correlación | R100204 | 13 | 0:00:25 | 0:00:15 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1486 | Ransomware simulado | R100006 | 12 | 0:00:00 | 0:00:19 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1078 | Valid accounts post-BF | R40112 | 12 | 0:00:32 | 0:01:15 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1059.004 | Reverse shell | R100030 | 14 | — | — | — | — | — | — | ❌ gap |
+| Técnica | Rule ID | Level | MTTD | MTTR pipeline | TheHive | Resultado |
+|---|---|---|---|---|---|---|
+| T1110.001 | R100001 | 10 | 3s | 17s | ✅ | ✅ |
+| T1003.008 | R100300 | 12 | 6s | 14s | ✅ | ✅ |
+| T1548.003 | R100022 | 12 | 0s | 16s | ✅ | ✅ |
+| T1070.003 | R100100 | 12 | 0s | 13s | ✅ | ✅ |
+| T1046 | R100008 | 10 | 5s | 11s | ✅ | ✅ |
+| T1565 | R100204 | 13 | 25s | 15s | ✅ | ✅ |
+| T1486 | R100006 | 12 | 0s | 19s | ✅ | ✅ |
+| T1572 | R100311 | 10 | 0s | 1m16s | ✅ | ✅ |
+| T1021.004 | R100002 | 10 | 23s | 56s | ✅ | ✅ |
+| T1071 | R100007 | 10 | 0s | 13s | ✅ | ✅ |
+| T1078 | R40112 | 12 | 32s | 1m15s | ✅ | ✅ |
 
-
-> \* T1046: decisión técnica documentada — port scan aislado no genera caso TheHive (política anti-alert-fatigue)
-
-**Tasa de detección Linux: 10/11 = 91%** | **MTTR mínimo: <1s** | **MTTR máximo: 32s**
+**Tasa de detección Linux: 12/12 = 100%** | MTTD min: 0s | MTTD max: 32s | MTTR medio pipeline: ~8s (excluyendo correlación temporal, ~2s)
 
 ---
 
 ## Validación MITRE ATT&CK — Windows (vm4-windows)
 
-Pruebas realizadas con **Atomic Red Team + Sysmon (SwiftOnSecurity)** sobre Windows Server 2022.
+Pruebas con **Atomic Red Team + Sysmon (SwiftOnSecurity)** sobre Windows Server 2022.
 
-| Técnica | Descripción | Rule ID | Level | MTTR Wazuh | MTTR Shuffle | ALERT | CASE | Velociraptor | Acciones Auto. | Resultado |
-|---|---|---|---|---|---|---|---|---|---|---|
-| T1136.001 | Usuario local creado | R100504 | 12 | 0:00:01 | 0:00:15 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1543.003 | Nuevo servicio Windows | R100502 | 12 | 0:00:02 | 0:02:05 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1547.001 | Modificación Run key | R100503 | 12 | 0:00:01 | 0:00:09 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1059.001 | PowerShell sospechoso | R100500 | 12 | 0:00:01 | 0:00:13 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1003.001 | Acceso LSASS | R100501 | 14 | 0:00:11 | 0:00:15 | ✅ | ✅ | ✅ | 7 | ✅ |
-| T1003 | Mimikatz por nombre | R100505 | 15 | 0:00:01 | 0:00:14 | ✅ | ✅ | ✅ | 7 | ✅ |
+| Técnica | Rule ID | Level | MTTD | MTTR pipeline | TheHive | Resultado |
+|---|---|---|---|---|---|---|
+| T1136.001 | R100504 | 12 | 1s | 15s | ✅ | ✅ |
+| T1543.003 | R100502 | 12 | 2s | 2m5s | ✅ | ✅ |
+| T1547.001 | R100503 | 12 | 1s | 9s | ✅ | ✅ |
+| T1059.001 | R100500 | 12 | 1s | 13s | ✅ | ✅ |
+| T1003.001 | R100501 | 14 | 11s | 15s | ✅ | ✅ |
+| T1003 (Mimikatz) | R100505 | 15 | 1s | 14s | ✅ | ✅ |
 
-**Tasa de detección Windows: 6/6 = 100%** | **MTTR medio: ~3s**
+**Tasa de detección Windows: 6/6 = 100%** | MTTD medio: ~3s
+
+> Limitación honesta documentada: T1218 (certutil como LOLBAS) no se validó — bloqueado por una capa de contención no identificada del sistema (Defender/AppLocker), incluso con Defender en tiempo real deshabilitado.
 
 ---
 
@@ -121,18 +131,21 @@ Pruebas realizadas con **Atomic Red Team + Sysmon (SwiftOnSecurity)** sobre Wind
 
 | Métrica | Valor |
 |---|---|
-| Técnicas MITRE validadas (Linux) | 10/11 (91%) |
-| Técnicas MITRE validadas (Windows) | 6/6 (100%) |
-| MTTR mínimo | < 1 segundo |
-| MTTR máximo | 32 segundos |
-| MTTR medio (Linux) | ~8 segundos |
-| MTTR medio (Windows) | ~3 segundos |
-| Acciones automatizadas por evento | 7 (Flujo Interno) |
-| Alertas reales procesadas (6 semanas) | 24.679 |
-| Países atacantes identificados | 15+ |
-| Tácticas MITRE cubiertas | 8 |
-| Coste infraestructura estimado | ~150€/mes Azure |
-| **MTTR sector (Verizon DBIR 2024)** | **194 días** |
+| Técnicas MITRE validadas | 18 (12 Linux + 6 Windows) |
+| Tasa de detección global | 100% |
+| MTTD medio | 1–8 s |
+| MTTR medio pipeline completo (Wazuh→Shuffle→TheHive) | 12–19 s |
+| Tiempo de aislamiento automático | < 30 s |
+| Acciones automatizadas por evento (Flujo Interno) | 7 |
+| Acciones automatizadas por evento (Flujo IPs, score ≥ 40) | 15 |
+| Alertas reales procesadas (11 semanas) | 347.324 |
+| Alertas accionables (nivel ≥ 10) | 21.421 (6,2% del total) |
+| Casos generados en TheHive | 21.421 |
+| Países atacantes identificados | 36 |
+| Tácticas MITRE detectadas en producción | 10 |
+| IoCs exportados automáticamente a MISP | 71 |
+| Coste infraestructura | 179,98 €/mes (2.159,76 €/año) |
+| **MTTR sector — referencia (IBM Cost of a Data Breach 2025)** | **194 días** |
 
 ---
 
@@ -150,23 +163,14 @@ Capa 2 — Exportación automática VT→MISP
 Capa 3 — Feedback loop TheHive→MISP
   Al cerrar caso: True Positive → añade IoC a MISP
                   False Positive → añade IP a warninglist local
+
+Watchlist adaptativa 
+IPs con score > 0 pero < 40 se añaden a watchlist MISP
+→ en el siguiente intento, MISP hit +30 puede superar el umbral,
+resolviendo el gap de detección ante IPs "day-zero" sin reputación previa
 ```
 
 ---
-
-## Estructura del Repositorio
-
-```
-soc-tfg/
-├── README.md                    ← Este archivo
-├── rules/
-│   └── local_rules.xml          ← 31 reglas Wazuh custom (MITRE ATT&CK)
-└── architecture/
-    └── diagrams.md              ← Decisiones de diseño y justificaciones
-```
-
----
-
 ## Reglas Wazuh Custom — Resumen
 
 | Rule ID | Técnica MITRE | Descripción |
@@ -199,24 +203,28 @@ soc-tfg/
 
 **Enriquecimiento paralelo vs secuencial**: MISP + VT + AbuseIPDB ejecutan simultáneamente en Shuffle, reduciendo latencia de ~15s a ~5s.
 
-**Scoring ponderado vs condition binaria**: el motor de scoring evalúa múltiples fuentes con pesos diferentes, evitando falsos negativos por IPs nuevas sin reputación (day-zero) y falsos positivos por detecciones únicas en VT.
+**MISP antes que VirusTotal**: consulta local (<1ms, sin rate limit) antes de gastar las 4 llamadas/min gratuitas de VT.
 
-**No bloqueo automático**: riesgo de falso positivo inaceptable en producción. Se implementa como "block-candidate" con aprobación manual del analista.
+**Scoring ponderado vs condición binaria**: evita falsos negativos por IPs sin reputación (day-zero) y falsos positivos por una detección aislada en VT.
 
-**Anti-alert-fatigue en port scan**: reconocimiento aislado genera alerta informativa sin caso TheHive. Solo activa pipeline completo si se combina con brute force o login exitoso.
+**Flujo Interno sin scoring**: los eventos que lo activan (modificación de /etc/sudoers, acceso a /etc/shadow, nuevo servicio systemd) son intrínsecamente anómalos por diseño de la regla; no requieren validación externa.
 
-**CTI cerrado**: la retroalimentación del analista al cerrar casos mejora progresivamente la base de conocimiento local, diferenciando un SOC proactivo de uno reactivo.
+**No bloqueo automático de IP atacante**: riesgo de falso positivo inaceptable (NAT compartido). Se documenta como "block-candidate" con aprobación manual.
 
+**Aislamiento NSG sí es automático**: a diferencia del bloqueo de IP, contener el *endpoint* ante técnicas críticas confirmadas (ransomware, C2) se considera de bajo riesgo y alto impacto en tiempo de respuesta.
+
+**Anti-alert-fatigue en port scan**: reconocimiento aislado genera alerta informativa sin caso TheHive; solo escala si se combina con brute force o login exitoso posterior.
+
+**CTI cerrado con watchlist adaptativa**: la retroalimentación del analista y el registro de IPs sin reputación confirmada convergen en una base de conocimiento local que mejora la precisión del scoring ante ataques futuros.
 ---
 
 ## Autor
 
 Arturo Giusseppe Valverde Avendaño
 
-
-TFG — Grado en Ingeniería de telecomunicaciones de la univeridad castilla-lamancha
-Año académico 2025-2026
+TFG — Grado en Ingeniería de Tecnologías de Telecomunicación, Universidad de Castilla-La Mancha
+Curso académico 2025-2026
 
 ---
 
-> **Nota**: Este repositorio documenta el proceso completo de implementación de un SOC académico funcional. Las IPs, credenciales y configuraciones específicas han sido anonimizadas donde corresponde.
+> **Nota**: Este repositorio documenta el proceso de implementación de un SOC académico funcional. IPs, credenciales, tokens y configuraciones específicas de la infraestructura desplegada han sido eliminados del repositorio.
