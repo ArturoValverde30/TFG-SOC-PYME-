@@ -1,1 +1,30 @@
+## Verificar con: auditctl -l
 
+# ── Lectura de /etc/passwd (T1003.008) ──────────────
+-w /etc/passwd -p r -k passwd_read
+
+# ── Lectura de /etc/shadow (T1003) ──────────────────
+# Nota: R100300 excluye sshd y sudo en Wazuh
+# para eliminar falsos positivos de autenticacion
+-w /etc/shadow -p r -k shadow_read
+
+# ── Lectura de /etc/ssh/sshd_config (T1552) ─────────
+-w /etc/ssh/sshd_config -p r -k ssh_config_read
+
+# ── Acceso a /home (T1005) ──────────────────────────
+# Nota: R100302 excluye sshd, bash y pwsh en Wazuh
+-w /home -p r -k home_read
+
+# ── Herramientas de exfiltración (T1048) ────────────
+-a always,exit -F arch=b64 -F exe=/usr/bin/scp \
+   -S execve -k exfil_tool
+-a always,exit -F arch=b64 -F exe=/usr/bin/rsync \
+   -S execve -k exfil_tool
+-a always,exit -F arch=b64 -F exe=/usr/bin/curl \
+   -S execve -k exfil_tool
+-a always,exit -F arch=b64 -F exe=/usr/bin/wget \
+   -S execve -k exfil_tool
+-a always,exit -F arch=b64 -F exe=/usr/bin/nc \
+   -S execve -k exfil_tool
+-a always,exit -F arch=b64 -F exe=/usr/bin/ncat \
+   -S execve -k exfil_tool
