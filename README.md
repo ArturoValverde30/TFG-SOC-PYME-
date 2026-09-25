@@ -51,13 +51,9 @@ El núcleo operativo del SOC (TheHive, MISP, Shuffle, OpenSearch) se despliega
   lugar de la IP pública, y llamadas a TheHive resueltas por el gateway
   Docker bridge (`172.17.0.1`) en lugar de DNS público
 
-**Wazuh Manager y el servidor de Velociraptor (VM1) corren nativos** como
-servicios `systemd`, fuera de Docker — separación deliberada para aislar
-el componente crítico de detección (SIEM) de la capa de orquestación SOAR,
-y porque Wazuh no recomienda oficialmente el despliegue containerizado del
-manager en producción por la complejidad de persistencia de reglas y agentes.
----
+**Wazuh Manager y el servidor de Velociraptor (VM1) corren nativos** como servicios `systemd`, fuera de Docker — separación deliberada para aislar el componente crítico de detección (SIEM) de la capa de orquestación SOAR, y porque Wazuh no recomienda oficialmente el despliegue containerizado del manager en producción por la complejidad de persistencia de reglas y agentes.
 
+---
 
 Infraestructura distribuida en tres entornos de red independientes:
 - **Azure France Central**: VM1 (Wazuh Manager + Velociraptor Server + webhook de aislamiento), VM2 (stack Docker: TheHive, MISP, Shuffle)
@@ -240,12 +236,7 @@ resolviendo el gap de detección ante IPs "day-zero" sin reputación previa
 
 **CTI cerrado con watchlist adaptativa**: la retroalimentación del analista y el registro de IPs sin reputación confirmada convergen en una base de conocimiento local que mejora la precisión del scoring ante ataques futuros.
 
-**Docker solo en el stack SOAR/CTI, no en el SIEM**: TheHive, MISP y Shuffle
-se containerizan para aislar dependencias y facilitar recuperación ante
-fallo; Wazuh Manager permanece nativo por ser el componente de detección
-crítico, evitando una capa adicional de virtualización entre el agente y
-el motor de correlación.
----
+**Docker solo en el stack SOAR/CTI, no en el SIEM**: TheHive, MISP y Shuffle se containerizan para aislar dependencias y facilitar recuperación ante fallo; Wazuh Manager  permanece nativo por ser el componente de detección crítico, evitando una capa adicional de virtualización entre el agente y el motor de correlación.
 
 ## Autor
 
