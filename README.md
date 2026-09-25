@@ -186,7 +186,34 @@ IPs con score > 0 pero < 40 se añaden a watchlist MISP
 → en el siguiente intento, MISP hit +30 puede superar el umbral,
 resolviendo el gap de detección ante IPs "day-zero" sin reputación previa
 ```
+## Respuesta Activa: Contención Automática en Dos Capas
 
+Ante técnicas críticas (T1486 ransomware, T1071 C2, T1003.001 LSASS dump,
+honeypot/canary), el pipeline ejecuta contención sin intervención humana,
+combinando dos mecanismos complementarios:
+
+| Capa | Mecanismo | Tiempo | Qué resuelve |
+|---|---|---|---|
+| **Host** | Active Response nativo de Wazuh (`kill-attacker.sh`) | 1-2s | Expulsa y bloquea la sesión del atacante ya establecida |
+| **Red** | Shuffle → webhook → Azure NSG (`isolate_vm.sh`) | < 30s | Bloquea reentrada mediante regla `deny-all inbound` |
+
+**Por qué dos capas**: el aislamiento de red no corta una sesión TCP
+ya abierta — el atacante conserva su shell activa aunque no pueda
+reconectar. La capa de host cierra ese hueco expulsando la sesión en
+el mismo segundo de la detección; la capa de red evita que vuelva a
+entrar.
+
+El pipeline respeta el principio *preserve evidence before containment*
+(NIST SP 800-61r3): Velociraptor ejecuta el hunt forense antes de
+cualquier acción de contención, y el canal forense se mantiene tras el
+aislamiento porque el cliente conecta en modo *outbound*.
+
+Autenticación sin credenciales estáticas: la VM del manager usa una
+**Azure Managed Identity** (rol Network Contributor) para obtener el
+token de la API de Azure en tiempo real, sin secretos almacenados.
+
+> Detalle completo de implementación, instalación y troubleshooting en
+> [`active-response/README.md`](active-response/README.md)
 ---
 ## Reglas Wazuh Custom — Resumen
 
